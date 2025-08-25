@@ -5,9 +5,9 @@
 #include <sstream>
 #include <cmath>
 #include <algorithm>
-#include <vector> // Include vector header for size()
+#include <vector> 
 
-// Constructor para imagen nueva
+
 Image::Image(int w, int h, const std::string& mode) : width(w), height(h), max_val(255) {
     if (mode == "pbm") {
         magic_number = "P1";
@@ -24,22 +24,18 @@ Image::Image(int w, int h, const std::string& mode) : width(w), height(h), max_v
     std::cout << "DEBUG: Image created. Data size: " << data.size() << std::endl;
 }
 
-// Constructor para cargar desde archivo
+
 Image::Image(const std::string& filename) {
     load(filename);
 }
 
-// Lógica de carga principal
-// Lógica de carga principal
 void Image::load(const std::string& filename) {
     std::ifstream file(filename, std::ios::in | std::ios::binary);
     if (!file) throw std::runtime_error("No se pudo abrir el archivo: " + filename);
 
     file >> magic_number;
 
-    // --- SECCIÓN CORREGIDA ---
-    // Ignorar comentarios y saltos de línea después del número mágico.
-    // Se comprueba el siguiente carácter en cada iteración para evitar un bucle infinito.
+   
     while (file.peek() == '\n' || file.peek() == '\r' || file.peek() == ' ' || file.peek() == '\t') {
         file.get();
     }
@@ -48,7 +44,7 @@ void Image::load(const std::string& filename) {
         std::string comment;
         std::getline(file, comment);
     }
-    // --- FIN DE LA CORRECCIÓN ---
+    
 
     file >> width >> height;
 
@@ -56,7 +52,7 @@ void Image::load(const std::string& filename) {
         file >> max_val;
     }
 
-    // Consumir el último caracter de nueva línea antes de los datos de píxeles
+    
     file.get();
 
     if (magic_number == "P1") read_pbm_ascii(file);
@@ -69,13 +65,13 @@ void Image::load(const std::string& filename) {
     
     std::cout << "DEBUG: Image loaded. Data size: " << data.size() << std::endl;
 }
-// --- Implementaciones de lectura ---
+
 void Image::read_pbm_ascii(std::ifstream& file) {
     data.resize(width * height);
     int pixel_val;
     for (int i = 0; i < width * height; ++i) {
         file >> pixel_val;
-        data[i] = (pixel_val == 1) ? 0 : 255; // Convertir PBM (1=negro) a escala de grises (0=negro)
+        data[i] = (pixel_val == 1) ? 0 : 255; 
     }
 }
 
@@ -108,7 +104,7 @@ void Image::read_pgm_binary(std::ifstream& file) {
 }
 
 void Image::read_ppm_ascii(std::ifstream& file) {
-    data.resize(width * height * 3); // Fix: Resize for 3 channels
+    data.resize(width * height * 3); 
     int pixel_val;
     for (int i = 0; i < width * height * 3; ++i) {
         file >> pixel_val;
@@ -117,12 +113,12 @@ void Image::read_ppm_ascii(std::ifstream& file) {
 }
 
 void Image::read_ppm_binary(std::ifstream& file) {
-    data.resize(width * height * 3); // Fix: Resize for 3 channels
+    data.resize(width * height * 3);
     file.read(reinterpret_cast<char*>(data.data()), data.size());
 }
 
 
-// Lógica de guardado principal
+
 void Image::save(const std::string& filename, bool binary) {
     std::string current_type = (magic_number == "P1" || magic_number == "P4") ? "pbm" :
                                (magic_number == "P2" || magic_number == "P5") ? "pgm" : "ppm";
@@ -139,7 +135,7 @@ void Image::save(const std::string& filename, bool binary) {
     file << width << " " << height << "\n";
     if (current_type != "pbm") file << max_val << "\n";
 
-    if (!binary) { // Guardado ASCII
+    if (!binary) {
         for (size_t i = 0; i < data.size(); ++i) {
              if (current_type == "pbm") {
                 file << (data[i] < 128 ? 1 : 0) << ( (i + 1) % width == 0 ? "\n" : " ");
@@ -147,11 +143,11 @@ void Image::save(const std::string& filename, bool binary) {
                 file << static_cast<int>(data[i]) << ( (i + 1) % (current_type == "ppm" ? width*3 : width) == 0 ? "\n" : " ");
             }
         }
-    } else { // Guardado Binario
+    } else { 
         if (current_type == "pbm") {
             std::vector<unsigned char> binary_data((width + 7) / 8 * height, 0);
             for(int i=0; i < width*height; ++i) {
-                if (data[i] < 128) { // Si es negro
+                if (data[i] < 128) { 
                     int byte_idx = i / 8;
                     int bit_idx = i % 8;
                     binary_data[byte_idx] |= (1 << (7 - bit_idx));
@@ -164,7 +160,6 @@ void Image::save(const std::string& filename, bool binary) {
     }
 }
 
-// Helper para setear un pixel
 void Image::set_pixel(int x, int y, const Color& color) {
     if (x < 0 || x >= width || y < 0 || y >= height) return;
 
@@ -180,7 +175,7 @@ void Image::set_pixel(int x, int y, const Color& color) {
     }
 }
 
-// Algoritmo de Bresenham para líneas
+// Algoritmo de Bresenham para lineas
 void Image::draw_line(int x0, int y0, int x1, int y1, const Color& color) {
     int dx = std::abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
     int dy = -std::abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
@@ -196,7 +191,7 @@ void Image::draw_line(int x0, int y0, int x1, int y1, const Color& color) {
     std::cout << "DEBUG: draw_line completed. Data size: " << data.size() << std::endl;
 }
 
-// Dibujo de rectángulos
+// Dibujo de rectangulos
 void Image::draw_rectangle(int x0, int y0, int x1, int y1, const Color& color, bool fill) {
     if (fill) {
         for (int y = std::min(y0, y1); y <= std::max(y0, y1); ++y) {
@@ -213,10 +208,10 @@ void Image::draw_rectangle(int x0, int y0, int x1, int y1, const Color& color, b
     std::cout << "DEBUG: draw_rectangle completed. Data size: " << data.size() << std::endl;
 }
 
-// Algoritmo de Midpoint/Bresenham para círculos
+// Algoritmo de Midpoint/Bresenham para circulos
 void Image::draw_circle(int xc, int yc, int r, const Color& color, bool fill) {
     if (fill) {
-        // Corrected filled circle drawing
+        
         int r_sq = r * r;
         for (int y = -r; y <= r; ++y) {
             for (int x = -r; x <= r; ++x) {
@@ -226,7 +221,7 @@ void Image::draw_circle(int xc, int yc, int r, const Color& color, bool fill) {
             }
         }
     } else {
-        // Original outline drawing
+        
         int x = r, y = 0;
         int err = 0;
         while (x >= y) {
