@@ -1,19 +1,19 @@
 
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h> // Para conversiones automáticas de std::vector
-#include <pybind11/numpy.h> // Para el buffer protocol
+#include <pybind11/stl.h>
+#include <pybind11/numpy.h> 
 #include "netpbm.h"
 
 namespace py = pybind11;
 
 PYBIND11_MODULE(netpbm_cpp, m) {
-    m.doc() = "Biblioteca para crear, convertir y manipular imágenes Netpbm";
+    m.doc() = "Biblioteca para crear, convertir y manipular imagenes Netpbm";
 
-    // Exponer la estructura Color
+    
     py::class_<Color>(m, "Color")
         .def(py::init<unsigned char, unsigned char, unsigned char>(), py::arg("r"), py::arg("g"), py::arg("b"));
 
-    // Exponer la clase Image
+    
     py::class_<Image>(m, "Image", py::buffer_protocol())
         .def(py::init<int, int, const std::string&>(), py::arg("width"), py::arg("height"), py::arg("mode"))
         .def(py::init<const std::string&>(), py::arg("filename"))
@@ -33,7 +33,7 @@ PYBIND11_MODULE(netpbm_cpp, m) {
         .def("get_width", &Image::get_width, "Obtiene el ancho de la imagen")
         .def("get_height", &Image::get_height, "Obtiene la altura de la imagen")
 
-        // El buffer protocol permite a NumPy acceder a los datos de C++ sin copiarlos. ¡Muy eficiente!
+        
         .def_buffer([](Image &img) -> py::buffer_info {
             size_t channels = img.get_data().size() / ((size_t)img.get_width() * img.get_height());
             std::string format = py::format_descriptor<unsigned char>::format();
@@ -42,20 +42,20 @@ PYBIND11_MODULE(netpbm_cpp, m) {
             if (channels == 3) { // PPM (3D: height, width, channels)
                 return py::buffer_info(
                     (void*)img.get_data().data(), // Puntero a los datos
-                    itemsize,                    // Tamaño de un elemento (byte)
-                    format,                      // Formato (unsigned char)
-                    3,                           // Número de dimensiones
-                    { (size_t)img.get_height(), (size_t)img.get_width(), channels }, // Forma (shape)
-                    { itemsize * img.get_width() * channels, itemsize * channels, itemsize } // Pasos (strides)
+                    itemsize,                    // (byte)
+                    format,                     
+                    3,                           
+                    { (size_t)img.get_height(), (size_t)img.get_width(), channels }, 
+                    { itemsize * img.get_width() * channels, itemsize * channels, itemsize } 
                 );
             } else { // PBM/PGM (2D: height, width)
                  return py::buffer_info(
                     (void*)img.get_data().data(), // Puntero a los datos
-                    itemsize,                    // Tamaño de un elemento (byte)
+                    itemsize,                    // (byte)
                     format,                      // Formato (unsigned char)
-                    2,                           // Número de dimensiones
-                    { (size_t)img.get_height(), (size_t)img.get_width() }, // Forma (shape)
-                    { itemsize * img.get_width(), itemsize } // Pasos (strides)
+                    2,                          
+                    { (size_t)img.get_height(), (size_t)img.get_width() }, 
+                    { itemsize * img.get_width(), itemsize } 
                 );
             }
         });
