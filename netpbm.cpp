@@ -30,20 +30,25 @@ Image::Image(const std::string& filename) {
 }
 
 // Lógica de carga principal
+// Lógica de carga principal
 void Image::load(const std::string& filename) {
     std::ifstream file(filename, std::ios::in | std::ios::binary);
     if (!file) throw std::runtime_error("No se pudo abrir el archivo: " + filename);
 
     file >> magic_number;
 
-    // Ignorar comentarios
-    char peek = file.peek();
-    while (peek == '\n' || peek == '\r') file.get();
-    peek = file.peek();
-    if (peek == '#') {
+    // --- SECCIÓN CORREGIDA ---
+    // Ignorar comentarios y saltos de línea después del número mágico.
+    // Se comprueba el siguiente carácter en cada iteración para evitar un bucle infinito.
+    while (file.peek() == '\n' || file.peek() == '\r' || file.peek() == ' ' || file.peek() == '\t') {
+        file.get();
+    }
+    
+    if (file.peek() == '#') {
         std::string comment;
         std::getline(file, comment);
     }
+    // --- FIN DE LA CORRECCIÓN ---
 
     file >> width >> height;
 
@@ -61,9 +66,9 @@ void Image::load(const std::string& filename) {
     else if (magic_number == "P5") read_pgm_binary(file);
     else if (magic_number == "P6") read_ppm_binary(file);
     else throw std::runtime_error("Formato Netpbm no soportado: " + magic_number);
+    
     std::cout << "DEBUG: Image loaded. Data size: " << data.size() << std::endl;
 }
-
 // --- Implementaciones de lectura ---
 void Image::read_pbm_ascii(std::ifstream& file) {
     data.resize(width * height);
