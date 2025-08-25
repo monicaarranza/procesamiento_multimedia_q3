@@ -68,9 +68,9 @@ def create_artistic_scene(width, height):
 
 def save_and_verify(image_obj):
 
-    print("\n💾 Guardando la imagen en formatos P6 (binario) y P3 (ASCII)...")
-    ruta_binaria = 'escena_binaria.ppm'
-    ruta_ascii = 'escena_ascii.ppm'
+    print("\nGuardando la imagen en formatos P6 (binario) y P3 (ASCII)...")
+    ruta_binaria = 'escena1_binaria.ppm'
+    ruta_ascii = 'escena1_ascii.ppm'
     
     image_obj.save(ruta_binaria, binary=True)
     print(f"Guardado en '{ruta_binaria}'")
@@ -100,14 +100,11 @@ def save_and_verify(image_obj):
 
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     plt.show()
-    os.remove(ruta_binaria)
-    os.remove(ruta_ascii)
+    #os.remove(ruta_binaria)
+    #os.remove(ruta_ascii)
 
-def main():
-    print("=" * 50)
-    print(" DEMOSTRACIÓN DE LA LIBRERÍA NetPBM C++")
-    print("=" * 50)
-    
+def run_scene():
+ 
     img_generada = create_artistic_scene(width=400, height=300)
     
     visualize_image(img_generada, "Escena Original Generada en C++")
@@ -115,8 +112,8 @@ def main():
     save_and_verify(img_generada)
     
     print("\n Demostracion completada")
-    print("=" * 50)
+
 
 
 if __name__ == "__main__":
-    main()
+    run_scene()
